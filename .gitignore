@@ -1,0 +1,8 @@
+venv
+mlflowdb
+mlruns
+tugas_day26.egg-info
+logs
+# Ignore the conda environment folder
+conda/mlday26/
+mlday26
