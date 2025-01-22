@@ -37,9 +37,9 @@ class ModelTrainer:
         """
         try:
             metrics = {
-                'RMSE': sqrt(mean_squared_error(y_true, y_pred)),
-                'MAE': mean_absolute_error(y_true, y_pred),
-                'R2 Score': r2_score(y_true, y_pred),
+                'rmse': sqrt(mean_squared_error(y_true, y_pred)),
+                'mae': mean_absolute_error(y_true, y_pred),
+                'r2_score': r2_score(y_true, y_pred),
             }
             return metrics
         except Exception as e:
@@ -170,7 +170,7 @@ class ModelTrainer:
             for model_type, model_info in self.models_info.items():
                 # Calculate combined score (average of recall and f1)
                 metrics = model_info['metrics']
-                combined_score = metrics['R2 Score']
+                combined_score = metrics['r2_score']
                 
                 if combined_score > best_score:
                     best_score = combined_score

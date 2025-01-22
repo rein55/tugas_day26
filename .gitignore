@@ -1,5 +1,5 @@
 venv
-mlflowdb
+mlflow.db
 mlruns
 tugas_day26.egg-info
 logs

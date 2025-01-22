@@ -63,13 +63,15 @@ class DataProcessor:
             ]
             # Handle Missing Value
             df[numerical_cols] = df[numerical_cols].fillna(0)
-            
+                        
             # Split features and target
             X = df.drop(columns=['Id', target_col], errors='ignore')
             y = np.log10(df[target_col]) if target_col in df.columns else None
             
             # Process categorical columns
             for col in categorical_cols:
+                X[col] = X[col].replace('NA', 'None')
+                X[col] = X[col].fillna('None')
                 logger.info(f"Fitting LabelEncoder for column: {col}")
                 self.encoders[col] = LabelEncoder()
                 X[col] = self.encoders[col].fit_transform(X[col])
@@ -110,13 +112,6 @@ class DataProcessor:
                 X = X.drop('Id', axis=1)
             
             # Handle TotalCharges
-            X[numerical_cols] = X[numerical_cols].fillna(0)
-            
-            # Transform categorical columns
-            for col, encoder in self.encoders.items():
-                X[col] = encoder.transform(X[col])
-            
-            # Transform numerical columns
             numerical_cols = [
                 'LotFrontage', 'LotArea', 'YearBuilt', 'YearRemodAdd', 'MasVnrArea', 
                 'BsmtFinSF1', 'BsmtFinSF2', 'BsmtUnfSF', 'TotalBsmtSF', '1stFlrSF', 
@@ -126,6 +121,16 @@ class DataProcessor:
                 'OpenPorchSF', 'EnclosedPorch', '3SsnPorch', 'ScreenPorch', 'PoolArea', 
                 'MiscVal', 'MoSold', 'YrSold'
             ]
+
+            X[numerical_cols] = X[numerical_cols].fillna(0)
+            
+            # Transform categorical columns
+            for col, encoder in self.encoders.items():
+                X[col] = X[col].replace('NA', 'None')
+                X[col] = X[col].fillna('None')
+                X[col] = encoder.transform(X[col])
+            
+            # Transform numerical columns
             X[numerical_cols] = self.scaler.transform(X[numerical_cols])
             
             logger.info("Transform completed successfully")

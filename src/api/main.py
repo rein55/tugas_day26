@@ -70,7 +70,7 @@ def get_latest_model_path() -> tuple[str, ModelInfo]:
     # Try to load model by run ID
     try:
         # Load directly from run ID and model name
-        model_path = f"runs:/{run_id}/xgboost"
+        model_path = f"runs:/{run_id}/random_forest"
         logger.info(f"Trying to load model from: {model_path}")
         model = mlflow.pyfunc.load_model(model_path)
         logger.info(f"Successfully loaded model from: {model_path}")
@@ -103,9 +103,9 @@ def get_latest_model_path() -> tuple[str, ModelInfo]:
     
     # Create model info
     metrics = ModelMetrics(
-        rmse=best_run.data.metrics.get('rmse', 0.0),
-        mae=best_run.data.metrics.get('mae', 0.0),
-        r2_score=best_run.data.metrics.get('r2 score', 0.0),
+        rmse=best_run.data.metrics.get('RMSE', 0.0),
+        mae=best_run.data.metrics.get('MAE', 0.0),
+        r2_score=best_run.data.metrics.get('R2 Score', 0.0),
     )
     
     model_info = ModelInfo(run_id=run_id, metrics=metrics)
@@ -127,7 +127,7 @@ async def startup_event():
         # model = mlflow.pyfunc.load_model(model_path)
 
         # Load the model using the correct method
-        model_path = 'mlruns/1/8748058292e044aa84acc54ece8413db/artifacts/xgboost/model.pkl'
+        model_path = 'mlruns/1/bd9b501a8fc04bb49a646daeb6ae86b4/artifacts/random_forest/model.pkl'
         with open(model_path, 'rb') as f:
             model = pickle.load(f)
         
@@ -135,7 +135,7 @@ async def startup_event():
         preprocessor = DataProcessor()
         preprocessor.load_preprocessors()
         
-        logger.info(f"Model and preprocessor loaded successfully")
+        logger.info("Model and preprocessor loaded successfully")
         
     except Exception as e:
         logger.error(f"Error loading model: {str(e)}")
@@ -164,16 +164,22 @@ async def predict(request: HousePricePredictionRequest):
     try:
         logger.info(f"Received prediction request for house: {request.Id}")
         
-        # Convert request to DataFrame
-        data = pd.DataFrame([request.dict()])
+        # Replace 'NA' in input data
+        input_data = request.dict(by_alias=True)
+        for key, value in input_data.items():
+            if value == "NA":
+                input_data[key] = "None"  # Replace NA with None
+        
+        # Convert to DataFrame
+        data = pd.DataFrame([input_data])
         
         # Preprocess data
         processed_data = preprocessor.transform(data)
         
         # Make prediction
         prediction = model.predict(processed_data)
-        houseprice_prediction = float(prediction)
-        
+        houseprice_prediction = 10 ** prediction[0]
+
         response = HousePricePredictionResponse(
             Id=request.Id,
             houseprice_prediction=houseprice_prediction,

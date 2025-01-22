@@ -12,8 +12,6 @@ class ModelInfo(BaseModel):
     run_id: str = Field(..., description="MLflow run ID")
     metrics: ModelMetrics = Field(..., description="Model metrics")
 
-from pydantic import BaseModel, Field
-
 class HousePricePredictionRequest(BaseModel):
     """Houseprice prediction request schema"""
     Id: int = Field(..., description="Unique identifier for the house")
@@ -59,8 +57,8 @@ class HousePricePredictionRequest(BaseModel):
     HeatingQC: str = Field(..., description="Heating quality and condition")
     CentralAir: str = Field(..., description="Central air conditioning")
     Electrical: str = Field(..., description="Electrical system")
-    FirstFlrSF: int = Field(..., description="First floor square feet")
-    SecondFlrSF: int = Field(..., description="Second floor square feet")
+    FirstFlrSF: int = Field(..., alias="1stFlrSF", description="First floor square feet")
+    SecondFlrSF: int = Field(..., alias="2ndFlrSF", description="Second floor square feet")
     LowQualFinSF: int = Field(..., description="Low quality finished square feet")
     GrLivArea: int = Field(..., description="Above grade living area square feet")
     BsmtFullBath: int = Field(..., description="Basement full bathrooms")
@@ -85,7 +83,7 @@ class HousePricePredictionRequest(BaseModel):
     WoodDeckSF: int = Field(..., description="Wood deck area in square feet")
     OpenPorchSF: int = Field(..., description="Open porch area in square feet")
     EnclosedPorch: int = Field(..., description="Enclosed porch area in square feet")
-    ThreeSsnPorch: int = Field(..., description="Three season porch area in square feet")
+    ThreeSsnPorch: int = Field(..., alias="3SsnPorch", description="Three season porch area in square feet")
     ScreenPorch: int = Field(..., description="Screen porch area in square feet")
     PoolArea: int = Field(..., description="Pool area in square feet")
     PoolQC: str = Field(..., description="Pool quality")
@@ -96,9 +94,9 @@ class HousePricePredictionRequest(BaseModel):
     YrSold: int = Field(..., description="Year Sold")
     SaleType: str = Field(..., description="Type of sale")
     SaleCondition: str = Field(..., description="Condition of sale")
-    SalePrice: int = Field(..., description="Price of sale")
 
     class Config:
+        allow_population_by_field_name = True
         schema_extra = {
             "example": {
                 "Id": 1,
@@ -181,13 +179,12 @@ class HousePricePredictionRequest(BaseModel):
                 "YrSold": 2008,
                 "SaleType": "WD",
                 "SaleCondition": "Normal",
-                "SalePrice": 208500
             }
         }
 
 
 class HousePricePredictionResponse(BaseModel):
     """Houseprice prediction response schema"""
-    Id: str = Field(..., description="Customer ID")
+    Id: int = Field(..., description="Customer ID")
     houseprice_prediction: float = Field(..., description="House Price Prediction result")
     # model_info: ModelInfo = Field(..., description="Model information and metrics")
